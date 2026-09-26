@@ -1,0 +1,5 @@
+# Expanded branch gallery
+
+Replaced the rotation-linked project rail, scroll track and constellation navigation with a native full-screen dialog. Persistent Back to System, ordinary independent scrolling, direct catalog jump, direct external links, inline Music catalog/video and existing Media Art gallery. Root scene, intro and models remain unchanged.
+
+Browser checks used a temporary component fixture with the seven real category records, removed before building. All seven categories opened and both return flow and desktop Escape passed. At 390px frame width each category had matching clientWidth and scrollWidth (360px), with 20 music releases rendered. Catalog jump moved scrollTop to 1060; wheel scrolling increased it to 1560. No application errors seen in fixture logs. Cloud browser WebGL/native touch verification remains unavailable from earlier testing; fixture does not prove 3D mesh selection. Embedded YouTube player rendered but playback was not verified. Existing entries without individual destination/content retain their category exploration destination.
