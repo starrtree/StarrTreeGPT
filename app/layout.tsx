@@ -20,8 +20,9 @@ export const metadata: Metadata = {
     "codex-preview": "development",
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: { url: "/images/starrtree-gold-logo.png", type: "image/png" },
+    shortcut: "/images/starrtree-gold-logo.png",
+    apple: "/images/starrtree-gold-logo.png",
   },
 };
 
