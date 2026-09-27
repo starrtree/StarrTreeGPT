@@ -9,6 +9,7 @@
     "install:ci": "npm ci",
     "dev": "vite --host 0.0.0.0",
     "build": "vinext build",
+    "prestart": "node scripts/fix-vinext-windows.mjs",
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
