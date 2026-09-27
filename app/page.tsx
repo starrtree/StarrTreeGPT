@@ -62,15 +62,33 @@ function TreeRootGrowth() {
   return (
     <span className="tree-hover-growth" aria-hidden="true">
       <svg viewBox="0 0 430 230" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="root-bark" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#e5bd79" />
+            <stop offset=".38" stopColor="#9c643b" />
+            <stop offset="1" stopColor="#543522" />
+          </linearGradient>
+        </defs>
         {treeRootPaths.map((root, index) => (
+          <g key={`${root.tone}-${index}`}>
+          <path className={`tree-root-path tree-root-bark tree-root-${root.tone}`} d={root.d} pathLength={1} style={{ "--root-delay": `${root.delay}ms` } as CSSProperties} />
           <path
-            key={`${root.tone}-${index}`}
             className={`tree-root-path tree-root-${root.tone}`}
             d={root.d}
             pathLength={1}
             style={{ "--root-delay": `${root.delay}ms` } as CSSProperties}
           />
+          </g>
         ))}
+        {[52, 145, 249, 352].flatMap((origin, index) => Array.from({ length: 9 }, (_, twig) => {
+          const side = twig % 2 === 0 ? -1 : 1;
+          const y = 158 + twig * 6;
+          const x = Math.round((origin + Math.sin(twig * 1.7 + index) * 8) * 100) / 100;
+          const reach = 12 + (twig * 7 + index * 3) % 24;
+          return <path key={`feeder-${index}-${twig}`} className="tree-root-path tree-root-feeder" pathLength={1}
+            d={`M${x} ${y} C${x + side * 8} ${y + 3} ${x + side * reach} ${y + 6} ${x + side * reach} ${y + 17} m0 -7 q${side * 6} 1 ${side * 9} 8`}
+            style={{ "--root-delay": `${480 + twig * 65 + index * 45}ms` } as CSSProperties} />;
+        }))}
       </svg>
     </span>
   );

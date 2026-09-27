@@ -274,6 +274,8 @@ function StarrXFigure({ transition, birthReady, onReady, lowPower, mobileLayout,
   const originHalo = useRef<THREE.Group>(null);
   const birthStartedAt = useRef<number | null>(null);
   const hovered = useRef(false);
+  const [showBioHint, setShowBioHint] = useState(false);
+  const auraOutline = useRef<THREE.MeshBasicMaterial>(null);
   const hoverEnergy = useRef(0);
   const particlePositions = useMemo(() => {
     const positions = new Float32Array(150 * 3);
@@ -350,6 +352,8 @@ function StarrXFigure({ transition, birthReady, onReady, lowPower, mobileLayout,
     stellarField.current.uniforms.uAfterglow.value = fadingAfterglow * (0.35 + stellarPulse * 0.12);
     const hoverTarget = (hovered.current ? 1 : mobileLayout ? 0.16 : 0) * systemVisibility;
     hoverEnergy.current = THREE.MathUtils.damp(hoverEnergy.current, hoverTarget, 5.8, delta);
+    figure.current.scale.setScalar(Math.max(0.001, birth * systemVisibility * (1 + hoverEnergy.current * 0.055)));
+    if (auraOutline.current) auraOutline.current.opacity = hoverEnergy.current * 0.45;
     stellarField.current.uniforms.uHover.value = hoverEnergy.current;
     hoverLight.current.intensity = hoverEnergy.current * 4.5;
     birthParticles.current.scale.setScalar(0.15 + THREE.MathUtils.smoothstep(elapsed, 0.18, 1.55) * 4.5);
@@ -383,16 +387,25 @@ function StarrXFigure({ transition, birthReady, onReady, lowPower, mobileLayout,
         onPointerOver={(event) => {
           event.stopPropagation();
           hovered.current = true;
+          setShowBioHint(true);
           document.body.style.cursor = "pointer";
         }}
         onPointerOut={() => {
           hovered.current = false;
+          setShowBioHint(false);
           document.body.style.cursor = "";
         }}
       >
         <group scale={normalized.scale}>
           <primitive object={normalized.clone} position={[-normalized.center.x, -normalized.center.y, -normalized.center.z]} />
         </group>
+        <mesh position={[0, 0, -0.18]} scale={[0.72, 1.5, 1]}>
+          <torusGeometry args={[1, 0.008, 8, 96]} />
+          <meshBasicMaterial ref={auraOutline} color="#ffe3a0" transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} />
+        </mesh>
+        {showBioHint && !mobileLayout && <Html center position={[1.15, 0.95, 0]} style={{ pointerEvents: "none" }}>
+          <div className="starrx-bio-hud"><small>STARRTREE / THE CREATOR</small><strong>MAX STARR</strong><span>EXPLORE THE BIOGRAPHY ↗</span></div>
+        </Html>}
         <group ref={originHalo} position={[0, -1.34, -0.02]} rotation={[Math.PI / 2, 0, 0]}>
           <mesh>
             <torusGeometry args={[0.76, 0.018, 10, 96]} />
@@ -544,10 +557,11 @@ function OrbNode({ world, config, index, totalOrbs, selectedId, hoveredId, setHo
     const selectionBlend = selected ? phase : 0;
     const selectionFloat = selected ? Math.sin(clock.elapsedTime * 1.05 + index * 0.4) * 0.055 * phase : 0;
     // Keep the planet anchored to the upper-right of the viewport behind the gallery.
-    const selectedX = (viewportSize.width / Math.max(viewportSize.height, 1)) * 0.92;
+    const scrollTravel = THREE.MathUtils.clamp(cardIndex, 0, 1);
+    const selectedX = (viewportSize.width / Math.max(viewportSize.height, 1)) * 0.92 * Math.cos(scrollTravel * Math.PI * 2);
     targetPosition.set(
       Math.cos(acceleratedAngle) * FORMATION_RADIUS * (1 - selectionBlend) + selectedX * selectionBlend,
-      (orbitDepth * Math.sin(FORMATION_TILT) + FORMATION_Y_OFFSET) * (1 - selectionBlend) + 0.62 * selectionBlend + selectionFloat,
+      (orbitDepth * Math.sin(FORMATION_TILT) + FORMATION_Y_OFFSET) * (1 - selectionBlend) + (0.62 + Math.sin(scrollTravel * Math.PI * 2) * 0.3) * selectionBlend + selectionFloat,
       orbitDepth * Math.cos(FORMATION_TILT) * (1 - selectionBlend),
     );
     currentPosition.copy(group.current.position).lerp(targetPosition, 1 - Math.exp(-delta * 5.5));
@@ -567,14 +581,13 @@ function OrbNode({ world, config, index, totalOrbs, selectedId, hoveredId, setHo
     const idleTiltZ = Math.cos(clock.elapsedTime * 0.53 + index * 0.71) * 0.045;
     const staysCameraFacing = world.id === "media" || world.id === "music";
     const usesFrontViews = world.id === "media" || world.id === "music";
-    const frontView = FRONT_VIEW_ANGLES[cardIndex % FRONT_VIEW_ANGLES.length];
+    const frontView = FRONT_VIEW_ANGLES[Math.floor(cardIndex * (FRONT_VIEW_ANGLES.length - 1))];
     group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, selected ? (usesFrontViews ? frontView.x : 0) : idleTiltX, 4.8, delta);
     group.current.rotation.z = THREE.MathUtils.damp(group.current.rotation.z, selected ? (usesFrontViews ? frontView.z : 0) : idleTiltZ, 4.8, delta);
     if (staysCameraFacing) {
-      group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, selected && usesFrontViews ? frontView.y : 0, 5.4, delta);
+      group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, selected && usesFrontViews ? frontView.y + scrollTravel * Math.PI * 2 : 0, 5.4, delta);
     } else if (selected) {
-      const projectCount = Math.max(world.projects.length, 1);
-      const projectRotation = (cardIndex / projectCount) * Math.PI * 2;
+      const projectRotation = scrollTravel * Math.PI * 2;
       group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, selectedBaseRotation.current + projectRotation, 5.4, delta);
     } else {
       group.current.rotation.y += delta * (0.105 + index * 0.009);
@@ -844,6 +857,8 @@ export default function OrbitalPortfolio({ worlds, onNavigateToWorld, onOpenMusi
   const [starrXReady, setStarrXReady] = useState(false);
   const [introPhase, setIntroPhase] = useState<IntroPhase>("symbol");
   const [audioPlaying, setAudioPlaying] = useState(false);
+  const [soundtrackIndex, setSoundtrackIndex] = useState(0);
+  const soundtrackName = soundtrackIndex === 0 ? "21st" : "Defibrilator";
   const [lowPower, setLowPower] = useState(false);
   const [mobileLayout, setMobileLayout] = useState(false);
   const [mobilePickerIndex, setMobilePickerIndex] = useState(0);
@@ -1049,9 +1064,13 @@ export default function OrbitalPortfolio({ worlds, onNavigateToWorld, onOpenMusi
     <div className={`orbital-portfolio ${selectedId ? "is-selected" : ""}`}>
       <audio
         ref={soundtrack}
-        src="/audio/21st.m4a"
+        src={soundtrackIndex === 0 ? "/audio/21st.m4a" : "/audio/defibrilator.m4a"}
         preload="auto"
-        loop
+        loop={soundtrackIndex === 1}
+        onEnded={() => setSoundtrackIndex(1)}
+        onLoadedData={() => {
+          if (soundtrackIndex === 1) void soundtrack.current?.play().catch(() => setAudioPlaying(false));
+        }}
         onPlay={() => setAudioPlaying(true)}
         onPause={() => setAudioPlaying(false)}
       />
@@ -1060,11 +1079,11 @@ export default function OrbitalPortfolio({ worlds, onNavigateToWorld, onOpenMusi
           type="button"
           className={`site-audio-toggle ${audioPlaying ? "is-playing" : ""}`}
           onClick={toggleSoundtrack}
-          aria-label={audioPlaying ? "Pause 21st" : "Play 21st"}
+          aria-label={`${audioPlaying ? "Pause" : "Play"} ${soundtrackName}`}
           aria-pressed={audioPlaying}
         >
           <span aria-hidden="true">{audioPlaying ? "Ⅱ" : "▶"}</span>
-          <small>21ST</small>
+          <small>{soundtrackName.toUpperCase()}</small>
         </button>
       )}
       <CinematicIntro phase={introPhase} onStart={sparkSeed} />
@@ -1142,7 +1161,11 @@ export default function OrbitalPortfolio({ worlds, onNavigateToWorld, onOpenMusi
       )}
 
       {selectedWorld && typeof document !== "undefined" && createPortal(
-        <BranchGallery key={selectedWorld.id} world={selectedWorld} onClose={closePlanet} onExplore={() => {
+        <BranchGallery key={selectedWorld.id} world={selectedWorld} onClose={closePlanet} onScrollProgress={(progress) => {
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+          planetScroll.current = progress;
+          setCardIndex(progress);
+        }} onExplore={() => {
           const id = selectedWorld.id;
           closePlanet();
           window.setTimeout(() => onNavigateToWorld(id), 100);

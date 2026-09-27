@@ -162,9 +162,16 @@ main { min-height: 100vh; overflow: clip; }
     stroke-dashoffset .7s cubic-bezier(.2,.76,.18,1),
     opacity .16s ease;
 }
-.tree-root-primary { stroke: #754525; stroke-width: 2.45; }
-.tree-root-secondary { stroke: #956038; stroke-width: 1.65; }
-.tree-root-tertiary { stroke: #b47a4b; stroke-width: 1.05; }
+.tree-root-primary { stroke: url(#root-bark); stroke-width: 3.6; }
+.tree-root-secondary { stroke: #bd8b54; stroke-width: 1.8; }
+.tree-root-tertiary { stroke: #d5aa71; stroke-width: .8; }
+.tree-root-bark { stroke: #342016; stroke-width: 5.5; filter: drop-shadow(0 2px 2px #0009); }
+.tree-root-bark.tree-root-secondary { stroke-width: 3.3; }
+.tree-root-bark.tree-root-tertiary { stroke-width: 1.8; }
+.tree-root-feeder { stroke: #c2935f; stroke-width: .55; }
+.starrx-bio-hud { min-width: 200px; padding: 12px 18px; border: 1px solid #ffe0a170; border-left: 3px solid #ffe0a1; background: #080710de; box-shadow: 0 0 25px #ffcf6830; color: #ffe6ae; text-align: left; }
+.starrx-bio-hud small, .starrx-bio-hud span { display: block; font-size: 8px; letter-spacing: .18em; }
+.starrx-bio-hud strong { display: block; margin: 8px 0; font-family: Georgia, serif; font-size: 22px; font-weight: 400; }
 .title-hover-tree .tree-hover-growth {
   opacity: 1;
   transition-delay: 0s;

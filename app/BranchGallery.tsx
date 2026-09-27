@@ -6,7 +6,7 @@ import { EPFeature, MyPOVFeature } from "./ReleasePromotion";
 import MusicCatalog from "./MusicCatalog";
 import UnreleasedVault from "./UnreleasedVault";
 
-export default function BranchGallery({ world, onClose, onExplore }: { world: OrbitalWorld; onClose: () => void; onExplore: () => void }) {
+export default function BranchGallery({ world, onClose, onExplore, onScrollProgress }: { world: OrbitalWorld; onClose: () => void; onExplore: () => void; onScrollProgress: (progress: number) => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const back = useRef<HTMLButtonElement>(null);
   const projects = useRef<HTMLElement>(null);
@@ -24,7 +24,10 @@ export default function BranchGallery({ world, onClose, onExplore }: { world: Or
       <span className="branch-location">STARRTREE <i>/</i> {world.title}</span>
       <div className="branch-shortcuts">{music && <button type="button" className="branch-jump" onClick={() => vault.current?.scrollIntoView({ behavior: "instant", block: "start" })}>Vault ⚿</button>}<button type="button" className="branch-jump" onClick={() => projects.current?.scrollIntoView({ behavior: "instant", block: "start" })}>{music ? "Releases" : "Projects"} ↓</button></div>
     </header>
-    <div className="branch-scroll">
+    <div className="branch-scroll" onScroll={(event) => {
+      const area = event.currentTarget;
+      onScrollProgress(area.scrollTop / Math.max(area.scrollHeight - area.clientHeight, 1));
+    }}>
       <div className="branch-intro">
         <div><p className="branch-eyebrow">BRANCH {world.number} <span>✦</span></p><h1 id="branch-heading">{world.title}</h1><p className="branch-description">{world.description}</p></div>
       </div>
