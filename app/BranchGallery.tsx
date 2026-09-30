@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { OrbitalWorld } from "./OrbitalPortfolio";
 import { EPFeature, MyPOVFeature } from "./ReleasePromotion";
 import MusicCatalog from "./MusicCatalog";
+import CommerceCatalog from "./CommerceCatalog";
 import UnreleasedVault from "./UnreleasedVault";
 
 export default function BranchGallery({ world, onClose, onExplore, onScrollProgress }: { world: OrbitalWorld; onClose: () => void; onExplore: () => void; onScrollProgress: (progress: number) => void }) {
@@ -50,6 +51,7 @@ export default function BranchGallery({ world, onClose, onExplore, onScrollProgr
           </article>)}
         </div>
       </section>
+      <CommerceCatalog branch={world.id} />
       <footer className="branch-footer"><span>✦ STARRTREE / {world.title}</span><button type="button" onClick={onClose}>← Back to System</button></footer>
     </div>
   </dialog>;

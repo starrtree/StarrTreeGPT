@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useForm, ValidationError } from "@formspree/react";
 import StarrFX from "./StarrFX";
 import MusicCatalog from "./MusicCatalog";
+import CommerceCatalog from "./CommerceCatalog";
 import UnreleasedVault from "./UnreleasedVault";
 import { EPFeature, MYPOV } from "./ReleasePromotion";
 
@@ -664,7 +665,7 @@ export default function Home() {
       </section>
 
       <section className="services-section">
-        <div className="section-index">WAYS TO WORK TOGETHER <span>NOW BOOKING</span></div>
+        <div className="section-index">WAYS TO WORK TOGETHER <span>SERVICES & BOOKING</span></div>
         <div className="services-title">
           <h2>Bring the idea.<br /><em>We&apos;ll build the world.</em></h2>
           <button className="primary-button" onClick={() => openBrief()}>Start a conversation <span>↗</span></button>
@@ -676,7 +677,7 @@ export default function Home() {
             </button>
           ))}
         </div>
-        <p className="commerce-note"><span>✦</span> Secure product checkout and individual Vocal Preset cover art will be added when the Stripe store links are ready. Until then, every service can be requested through the project form.</p>
+        <CommerceCatalog />
       </section>
 
       <section className="gallery-section" aria-label="StarrTree visual universe">
